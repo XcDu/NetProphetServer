@@ -23,11 +23,13 @@ public class UrlIndexServlet extends HttpServlet {
       throws ServletException, IOException {
     AccessManager accessManager = new AccessManager();
     try {
+      String app = request.getParameter("app");
+      System.out.println("application:" + app);
       String sortBy = request.getParameter("sortBy");
-      System.out.println(sortBy);
-      ArrayList<UrlIndex> urlIndex = accessManager.getUrlIndex(sortBy);
+      System.out.println("Sortby:" + sortBy);
+      ArrayList<UrlIndex> urlIndex = accessManager.getUrlIndex(app, sortBy);
       String respJson = new Gson().toJson(urlIndex);
-      System.out.println(respJson);
+      // System.out.println(respJson);
       response.setContentType("application/json");
       response.setCharacterEncoding("utf-8");
       response.getWriter().write(respJson);

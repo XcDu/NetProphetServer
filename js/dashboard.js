@@ -6,7 +6,7 @@
 // Sidebar init
 function getUrlIndex(sortBy) {
   $("ul.nav.nav-sidebar").empty();
-  $.ajax({url:"UrlIndexServlet", data:{ sortBy : sortBy },
+  $.ajax({url:"UrlIndexServlet", data:{ app: application, sortBy : sortBy },
     success: function (urlsIndex){
     for(var i=0;i<urlsIndex.length;++i) {
       var appendString="";
@@ -43,9 +43,7 @@ $(getUrlIndex($(".sortby-selector select option:selected").text()));
 
 
 // Charts init
-
-// var url= "baidu.com";
-$.ajax({url:"ChartServlet", data:{type:"overview"},
+$.ajax({url:"ChartServlet", data:{app: application, type:"overview"},
  success: drawOverviewHighCharts, dataType: 'json',type: "GET"});
 // Charts init end
 
@@ -352,13 +350,32 @@ function drawRedirectionChart(chart, location){
 // Charts to show: Url index charts end
 
 // Click listener
+
+$(function(){
+  $('body').on('click',"a.selectable p" , function() {
+    $(".selected").removeClass("selected");
+    $(this).addClass("selected");
+  });
+});
+$(function(){
+  $('body').on('click',".overview a.selectable" , function() {
+    $.ajax({url:"ChartServlet", data:{app: application, type:"overview"},
+success: drawOverviewHighCharts, dataType: 'json',type: "GET"});
+  });
+});
+$(function(){
+  $('body').on('change',".sortby-selector select" , function() {
+    //alert($(".sortby-selector select option:selected").text());
+    getUrlIndex($(".sortby-selector select option:selected").text());
+  });
+});
 $(document).ready(function(){
   $('body').on('click', '.sub-list li a p', function() {
     var targetUrl=this.innerHTML;
-    console
-    $.ajax({url:"ChartServlet", data:{type:"urllist", targetUrl:targetUrl}, success: drawUrlHighCharts, dataType: 'json',type: "GET"});
+    $.ajax({url:"ChartServlet", data:{app:application, type:"urllist", targetUrl:targetUrl}, success: drawUrlHighCharts, dataType: 'json',type: "GET"});
   });
 });
+
 // Click listener end
 
 // Scrollbar init

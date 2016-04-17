@@ -1,3 +1,6 @@
+/*
+  Dashboard Style
+*/
 /* Base Construction */
 html, body{
   font-family: Arial,"Microsoft YaHei","黑体","宋体",sans-serif;
@@ -306,5 +309,36 @@ tr td {
   background-color: #52D3AA;
 }
 /* Main content*/
+/*
+  Dashboard Style end
+*/
 
+/*
+  Applications Style
+*/
+#app-container {
+  border: 1px solid #52D3AA;
+  border-radius: 15px;
 
+  margin-top: 5%;
+  padding: 20px;
+
+  box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.21);
+  -webkit-box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.21);
+  -moz-box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.21);
+  -o-box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.21);
+}
+
+#app-container {
+  text-align: center;
+}
+#app-container label {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+#app-container table {
+  font-family: Arial, sans-serif;
+}
+/*
+  Applications Style end
+*/

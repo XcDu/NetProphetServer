@@ -26,45 +26,7 @@ public class Service extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
-    response.setContentType("text/html;charset=UTF-8");
-    PrintWriter out = response.getWriter();
-    String title = "DatabaseDebug";
-    String docType = "<!doctype html public \"-//w3c//dtd html 4.0 "
-        + "transitional//en\">\n";
-    ArrayList<HttpRequestInfo> httpRequestInfoList =
-        new ArrayList<HttpRequestInfo>();
-    ArrayList<NetworkInfo> networkInfoList = new ArrayList<NetworkInfo>();
-    SortedMap<String, ArrayList<String>> urlIndex =
-        new TreeMap<String, ArrayList<String>>();
-    try {
-      AccessManager accessManager = new AccessManager();
-      httpRequestInfoList = accessManager.getHttpRequestInfo("");
-      networkInfoList = accessManager.getNetworkInfo();
-      urlIndex = accessManager.getUrlIndex();
-
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    out.print(docType + "<html>\n" + "<head><title>" + title
-        + "</title></head>\n" + "<body bgcolor=\"#f0f0f0\">\n"
-        + "<h1 align=\"center\">" + title + "</h1>\n");
-    // out.println("<p>TimingTable<br /></p>");
-    // for (int i = 0; i < httpRequestInfoList.size(); ++i) {
-    // out.print("<ul>\n" + httpRequestInfoList.get(i).toString() + "\n</ul>");
-    // }
-    // out.println("<p>NetworkingDataTable<br /></p>");
-    // for (int i = 0; i < networkInfoList.size(); ++i) {
-    // out.print("<ul>\n" + networkInfoList.get(i).toString() + "\n</ul>\n");
-    // }
-    // out.println("<p>urlIndex</p>");
-    // for (String s : urlIndex.keySet()) {
-    // out.println(s + "<br />");
-    // for (int i = 0; i < urlIndex.get(s).size(); ++i) {
-    // out.println(urlIndex.get(s).get(i) + "<br />");
-    // }
-    // out.println("<br />");
-    // }
-    out.println(urlIndex);
+    throw new ServletException("error");
   }
 
   @Override

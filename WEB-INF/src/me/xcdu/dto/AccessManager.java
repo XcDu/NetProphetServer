@@ -1,6 +1,7 @@
 package me.xcdu.dto;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import me.xcdu.bo.Charts;
@@ -22,28 +23,34 @@ public class AccessManager {
     access = new Access();
   }
 
-  public ArrayList<UrlIndex> getUrlIndex(String sortBy) throws Exception {
-    return access.getUrlIndexList(connection, sortBy);
+  public ArrayList<UrlIndex> getUrlIndex(String targetApplication,
+      String sortBy) throws Exception {
+    return access.getUrlIndexList(connection, targetApplication, sortBy);
   }
 
-  public Charts<OverviewCharts> getOverviewCharts() throws Exception {
+  public Charts<OverviewCharts> getOverviewCharts(String targetApplication)
+      throws Exception {
     Charts<OverviewCharts> overviewCharts = new Charts<OverviewCharts>();
     overviewCharts.setWifi(new OverviewCharts(
-        access.getTopViewedChart(connection, NetworkType.WIFI),
-        access.getTopErrorRateChart(connection, NetworkType.WIFI)));
+        access.getTopViewedChart(connection, targetApplication,
+            NetworkType.WIFI),
+        access.getTopErrorRateChart(connection, targetApplication,
+            NetworkType.WIFI)));
     overviewCharts.setMobile(new OverviewCharts(
-        access.getTopViewedChart(connection, NetworkType.MOBILE),
-        access.getTopErrorRateChart(connection, NetworkType.MOBILE)));
+        access.getTopViewedChart(connection, targetApplication,
+            NetworkType.MOBILE),
+        access.getTopErrorRateChart(connection, targetApplication,
+            NetworkType.MOBILE)));
     return overviewCharts;
   }
 
-  public Charts<UrlListCharts> getUrlListCharts(String targetUrl)
-      throws Exception {
+  public Charts<UrlListCharts> getUrlListCharts(String targetApplication,
+      String targetUrl) throws Exception {
     Charts<UrlListCharts> urlListCharts = new Charts<UrlListCharts>();
-    urlListCharts.setWifi(
-        access.getUrlListCharts(connection, targetUrl, NetworkType.WIFI));
-    urlListCharts.setMobile(
-        access.getUrlListCharts(connection, targetUrl, NetworkType.MOBILE));
+    urlListCharts.setWifi(access.getUrlListCharts(connection, targetApplication,
+        targetUrl, NetworkType.WIFI));
+    urlListCharts.setMobile(access.getUrlListCharts(connection,
+        targetApplication, targetUrl, NetworkType.MOBILE));
     return urlListCharts;
   }
 
@@ -64,14 +71,19 @@ public class AccessManager {
   // return access.getHttpRequestInfo(connection, targetUrl, errorFilter, sortBy,
   // sortType);
   // }
-
-
-
-  public boolean insertNetworkInfo(NetworkInfo info) throws Exception {
-    return access.insertNetworkInfo(connection, info);
+  public ArrayList<String> getApplicationList() throws SQLException {
+    return access.getApplicationList(connection);
   }
 
-  public boolean insertHttpRequestInfo(HttpRequestInfo info) throws Exception {
-    return access.insertHttpRequestInfo(connection, info);
+
+  public boolean insertNetworkInfo(String targetApplication, NetworkInfo info)
+      throws Exception {
+    return access.insertNetworkInfo(connection, targetApplication, info);
   }
+
+  public boolean insertHttpRequestInfo(String targetApplication,
+      HttpRequestInfo info) throws Exception {
+    return access.insertHttpRequestInfo(connection, targetApplication, info);
+  }
+
 }

@@ -1,9 +1,9 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"  errorPage="" %>
-<%!
-	String SortBy="Overall Delay";
-%>
 <!DOCTYPE html>
-
+<%
+    String tests=request.getParameter("application");
+	System.out.println("testParameter:"+tests);
+%>
 <html>
   <head>
     <meta charset="utf-8">
@@ -20,7 +20,7 @@
     <link href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css">
 
     <!-- Custom styles for this template -->
-    <link href="css/dashboard-style.css" rel="stylesheet" type="text/css">
+    <link href="css/style.css" rel="stylesheet" type="text/css">
 
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -90,10 +90,13 @@
     ================================================== -->
 
     <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/javascript">
+      var application="<%=request.getParameter("application")%>";
+    </script>
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/highcharts.js"></script>
-    <script src="js/jquery.nicescroll.js"></script>
+    <script src="js/jquery.nicescroll.js" type="text/javascript"></script>
     <script src="js/dashboard.js"></script>
     <script type="text/javascript">
       var url = "baidu.com";
@@ -101,23 +104,6 @@
         var sortByContent="url";
         return sortByContent;
       }
-        // $(function(){
-        //   $('body').on('click',"p" , function() {
-        //     console.log("Overview");
-        //   });
-        // });
-      $(function(){
-        $('body').on('click',"a.selectable p" , function() {
-          $(".selected").removeClass("selected");
-          $(this).addClass("selected");
-        });
-      });
-      $(function(){
-        $('body').on('change',".sortby-selector select" , function() {
-          alert($(".sortby-selector select option:selected").text());
-          getUrlIndex($(".sortby-selector select option:selected").text());
-        });
-      });
       // var X= $.post("ChartServlet",{data:url}, function(data) {drawLineChart(data);});
     </script>
   </body>

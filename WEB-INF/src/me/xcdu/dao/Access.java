@@ -2,6 +2,7 @@ package me.xcdu.dao;
 
 import java.net.URL;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,10 +29,11 @@ public class Access {
   }
 
   public TopViewedChart getTopViewedChart(Connection connection,
-      NetworkType networkType) throws SQLException {
+      String targetApplication, NetworkType networkType) throws SQLException {
     TopViewedChart chart = new ChartBuilder().createTopViewdChart();
-    PreparedStatement preparedStatement = connection.prepareStatement(
-        sqlStatementBuilder.getOverviewTopViewedSql(networkType));
+    PreparedStatement preparedStatement =
+        connection.prepareStatement(sqlStatementBuilder
+            .getOverviewTopViewedSql(targetApplication, networkType));
     ResultSet rs = preparedStatement.executeQuery();
     try {
       while (rs.next()) {
@@ -45,10 +47,11 @@ public class Access {
   }
 
   public TopErrorRateChart getTopErrorRateChart(Connection connection,
-      NetworkType networkType) throws SQLException {
+      String targetApplicatoin, NetworkType networkType) throws SQLException {
     TopErrorRateChart chart = new ChartBuilder().createTopErrorRateChart();
-    PreparedStatement preparedStatement = connection.prepareStatement(
-        sqlStatementBuilder.getOverviewTopErrorRateSql(networkType));
+    PreparedStatement preparedStatement =
+        connection.prepareStatement(sqlStatementBuilder
+            .getOverviewTopErrorRateSql(targetApplicatoin, networkType));
     ResultSet rs = preparedStatement.executeQuery();
     try {
       while (rs.next()) {
@@ -61,13 +64,16 @@ public class Access {
     return chart;
   }
 
-  public UrlListCharts getUrlListCharts(Connection connection, String targetUrl,
-      NetworkType networkType) throws SQLException {
-    PreparedStatement preparedStatement = connection.prepareStatement(
-        sqlStatementBuilder.getUrlListChartsSql(targetUrl, networkType));
+  public UrlListCharts getUrlListCharts(Connection connection,
+      String targetApplication, String targetUrl, NetworkType networkType)
+      throws SQLException {
+    PreparedStatement preparedStatement =
+        connection.prepareStatement(sqlStatementBuilder
+            .getUrlListChartsSql(targetApplication, targetUrl, networkType));
     ResultSet rsWithoutRedirection = preparedStatement.executeQuery();
-    preparedStatement = connection.prepareStatement(sqlStatementBuilder
-        .getUrlListRedirectionChartsSql(targetUrl, networkType));
+    preparedStatement = connection.prepareStatement(
+        sqlStatementBuilder.getUrlListRedirectionChartsSql(targetApplication,
+            targetUrl, networkType));
     ResultSet rsWithRedirection = preparedStatement.executeQuery();
     UrlListCharts charts = new UrlListCharts();
     charts.setAllCharts(
@@ -125,10 +131,10 @@ public class Access {
   }
 
   public ArrayList<UrlIndex> getUrlIndexList(Connection connection,
-      String sortBy) throws SQLException {
-    PreparedStatement statement =
-        connection.prepareStatement(sqlStatementBuilder.getUrlIndexSql(sortBy));
-    System.out.println(statement);
+      String targetApplication, String sortBy) throws SQLException {
+    PreparedStatement statement = connection.prepareStatement(
+        sqlStatementBuilder.getUrlIndexSql(targetApplication, sortBy));
+    System.out.println("Statement:" + statement.toString());
     ResultSet rs = statement.executeQuery();
     ArrayList<UrlIndex> urlIndexList = new ArrayList<UrlIndex>();
     SortedMap<String, Integer> urlIndexMap = new TreeMap<String, Integer>();
@@ -156,7 +162,7 @@ public class Access {
   }
 
   public boolean insertHttpRequestInfo(Connection connection,
-      HttpRequestInfo info) throws SQLException {
+      String targetApplication, HttpRequestInfo info) throws SQLException {
     PreparedStatement statement =
         connection.prepareStatement("insert into HTTPRequestInfo values("
             + info.getReqID() + "," + "\"" + info.getUrl() + "\"," + "\""
@@ -181,8 +187,8 @@ public class Access {
     return false;
   }
 
-  public boolean insertNetworkInfo(Connection connection, NetworkInfo info)
-      throws SQLException {
+  public boolean insertNetworkInfo(Connection connection,
+      String targetApplication, NetworkInfo info) throws SQLException {
     PreparedStatement statement =
         connection.prepareStatement("insert into NetworkInfo values("
             + info.getReqID() + "," + "\"" + info.getNetworkType() + "\","
@@ -199,4 +205,25 @@ public class Access {
     return false;
   }
 
+  public ArrayList<String> getApplicationList(Connection connection)
+      throws SQLException {
+    DatabaseMetaData metaData = connection.getMetaData();
+    ResultSet rs = metaData.getTables(null, null, "%_httprequestinfo", null);
+    ArrayList<String> applicationList = new ArrayList<String>();
+    try {
+      while (rs.next()) {
+        String sTmp = rs.getString(3);
+        applicationList.add(sTmp.substring(0, sTmp.indexOf('_')));
+      }
+      System.out.println(applicationList);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return applicationList;
+  }
+
+  public boolean createApplicationTables() throws SQLException {
+    // TODO(xcdu)
+    return true;
+  }
 }

@@ -17,12 +17,15 @@ public class ChartServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
+    String app = request.getParameter("app");
+    System.out.println("application:" + app);
     String type = request.getParameter("type");
     if (type.equalsIgnoreCase("overview")) {
       try {
         Gson gson = new Gson();
-        String respJson = gson.toJson(new AccessManager().getOverviewCharts());
-        System.out.println(respJson);
+        String respJson =
+            gson.toJson(new AccessManager().getOverviewCharts(app));
+        // System.out.println(respJson);
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         response.getWriter().write(respJson);
@@ -34,7 +37,7 @@ public class ChartServlet extends HttpServlet {
         String targetUrl = request.getParameter("targetUrl");
         Gson gson = new Gson();
         String respJson =
-            gson.toJson(new AccessManager().getUrlListCharts(targetUrl));
+            gson.toJson(new AccessManager().getUrlListCharts(app, targetUrl));
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         response.getWriter().write(respJson);
