@@ -75,6 +75,10 @@ public class AccessManager {
     return access.getApplicationList(connection);
   }
 
+  public boolean createApplicationTable(String targetApplication)
+      throws SQLException {
+    return access.createApplicationTables(connection, targetApplication);
+  }
 
   public boolean insertNetworkInfo(String targetApplication, NetworkInfo info)
       throws Exception {

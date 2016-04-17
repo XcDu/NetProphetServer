@@ -8,8 +8,8 @@
 	<welcome-file>applications.jsp</welcome-file>
 </welcome-file-list>
 <servlet>
-    <servlet-name>Service</servlet-name>
-    <servlet-class>me.xcdu.service.Service</servlet-class>
+    <servlet-name>JsonToDatabase</servlet-name>
+    <servlet-class>me.xcdu.service.JsonToDatabase</servlet-class>
 </servlet>
 <servlet>
     <servlet-name>UrlIndexServlet</servlet-name>
@@ -21,8 +21,8 @@
 </servlet>
 
 <servlet-mapping>
-    <servlet-name>Service</servlet-name>
-    <url-pattern>/Service</url-pattern>
+    <servlet-name>JsonToDatabase</servlet-name>
+    <url-pattern>/JsonToDatabase</url-pattern>
 </servlet-mapping>
 <servlet-mapping>
     <servlet-name>UrlIndexServlet</servlet-name>

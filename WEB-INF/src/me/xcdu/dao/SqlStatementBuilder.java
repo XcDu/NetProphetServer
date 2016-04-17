@@ -6,8 +6,8 @@ public class SqlStatementBuilder {
   private static final int OVERVIEW_TOP_ERROR_RATE_NUMBER = 10;
 
   public enum NetworkType {
-    BOTH(""), WIFI("networkinfo.networkType='WIFI'"), MOBILE(
-        "networkinfo.networkType='MOBILE'");
+    BOTH(""), WIFI("networkinfo.networkType=WIFI"), MOBILE(
+        "networkinfo.networkType=MOBILE");
     private String statementNetworkType;
 
     private NetworkType(String statement) {
@@ -88,7 +88,55 @@ public class SqlStatementBuilder {
   }
 
   public String getApplicationListSql() {
-    String statement = "show tables like '%_httprequestinfo'";
+    String statement = "show tables like %_httprequestinfo";
+    return statement;
+  }
+
+  public String createHttpRequestinfoTable(String targetApplication) {
+    String statement = "CREATE TABLE IF NOT EXISTS " + targetApplication
+        + "_httprequestinfo (" + " reqID bigint(20) NOT NULL AUTO_INCREMENT,"
+        + " url varchar(2083) DEFAULT NULL,"
+        + " method varchar(256) DEFAULT NULL,"
+        + " userID varchar(256) DEFAULT NULL,"
+        + " prevReqID bigint(20) DEFAULT NULL,"
+        + " nextReqID bigint(20) DEFAULT NULL,"
+        + " startTime bigint(20) DEFAULT NULL,"
+        + " endTime bigint(20) DEFAULT NULL,"
+        + " overallDelay bigint(20) DEFAULT NULL,"
+        + " dnsDelay bigint(20) DEFAULT NULL,"
+        + " connDelay bigint(20) DEFAULT NULL,"
+        + " handshakeDelay bigint(20) DEFAULT NULL,"
+        + " tlsDelay bigint(20) DEFAULT NULL,"
+        + " reqWriteDelay bigint(20) DEFAULT NULL,"
+        + " serverDelay bigint(20) DEFAULT NULL,"
+        + " TTFBDelay bigint(20) DEFAULT NULL,"
+        + " respTransDelay bigint(20) DEFAULT NULL,"
+        + " useConnCache tinyint(1) DEFAULT NULL,"
+        + " useDNSCache tinyint(1) DEFAULT NULL,"
+        + " useRespCache tinyint(1) DEFAULT NULL,"
+        + " respSize bigint(20) DEFAULT NULL,"
+        + " HTTPCode int(11) DEFAULT NULL," + " reqSize int(11) DEFAULT NULL,"
+        + " isFailedRequest tinyint(1) DEFAULT NULL,"
+        + " errorMsg text, detailedErrorMsg text,"
+        + " transID bigint(20) DEFAULT NULL,"
+        + " transType int(11) DEFAULT NULL," + " PRIMARY KEY (reqID))"
+        + " ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;";
+
+    return statement;
+  }
+
+  public String createNetworkinfoTable(String targetApplication) {
+    String statement = " CREATE TABLE IF NOT EXISTS " + targetApplication
+        + "_networkinfo (" + " reqID bigint(20) NOT NULL AUTO_INCREMENT,"
+        + " networkType varchar(256) DEFAULT NULL,"
+        + " networkName varchar(256) DEFAULT NULL,"
+        + " WIFISignalLevel int(11) DEFAULT NULL,"
+        + " cellSignalLevel int(11) DEFAULT NULL, MCC int(11) DEFAULT NULL,"
+        + " MNC int(11) DEFAULT NULL," + " LAC int(11) DEFAULT NULL,"
+        + " firstMileLatency int(11) DEFAULT NULL,"
+        + " firstMilePacketLossRate int(11) DEFAULT NULL,"
+        + " PRIMARY KEY (reqID))"
+        + " ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;";
     return statement;
   }
 }

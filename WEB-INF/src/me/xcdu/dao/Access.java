@@ -161,10 +161,36 @@ public class Access {
     return urlIndexList;
   }
 
+  public ArrayList<String> getApplicationList(Connection connection)
+      throws SQLException {
+    DatabaseMetaData metaData = connection.getMetaData();
+    ResultSet rs = metaData.getTables(null, null, "%_httprequestinfo", null);
+    ArrayList<String> applicationList = new ArrayList<String>();
+    try {
+      while (rs.next()) {
+        String sTmp = rs.getString(3);
+        applicationList.add(sTmp.substring(0, sTmp.indexOf('_')));
+      }
+      System.out.println(applicationList);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return applicationList;
+  }
+
+  public boolean createApplicationTables(Connection connection,
+      String targetApplication) throws SQLException {
+    connection.createStatement().execute(
+        sqlStatementBuilder.createHttpRequestinfoTable(targetApplication));
+    connection.createStatement()
+        .execute(sqlStatementBuilder.createNetworkinfoTable(targetApplication));
+    return true;
+  }
+
   public boolean insertHttpRequestInfo(Connection connection,
       String targetApplication, HttpRequestInfo info) throws SQLException {
-    PreparedStatement statement =
-        connection.prepareStatement("insert into HTTPRequestInfo values("
+    PreparedStatement statement = connection.prepareStatement(
+        "insert into " + targetApplication + "_httprequestinfo values("
             + info.getReqID() + "," + "\"" + info.getUrl() + "\"," + "\""
             + info.getMethod() + "\"," + "\"" + info.getUserID() + "\","
             + info.getPrevReqID() + "," + info.getNextReqID() + ","
@@ -189,14 +215,13 @@ public class Access {
 
   public boolean insertNetworkInfo(Connection connection,
       String targetApplication, NetworkInfo info) throws SQLException {
-    PreparedStatement statement =
-        connection.prepareStatement("insert into NetworkInfo values("
-            + info.getReqID() + "," + "\"" + info.getNetworkType() + "\","
-            + "\"" + info.getNetworkName() + "\"," + info.getWIFISignalLevel()
-            + "," + info.getCellSignalLevel() + "," + info.getMCC() + ","
-            + info.getMNC() + "," + info.getLAC() + ","
-            + info.getFirstMileLatency() + ","
-            + info.getFirstMilePacketLossRate() + ");");
+    PreparedStatement statement = connection.prepareStatement("insert into "
+        + targetApplication + "_networkinfo values(" + info.getReqID() + ","
+        + "\"" + info.getNetworkType() + "\"," + "\"" + info.getNetworkName()
+        + "\"," + info.getWIFISignalLevel() + "," + info.getCellSignalLevel()
+        + "," + info.getMCC() + "," + info.getMNC() + "," + info.getLAC() + ","
+        + info.getFirstMileLatency() + "," + info.getFirstMilePacketLossRate()
+        + ");");
     try {
       return statement.execute();
     } catch (SQLException e) {
@@ -205,25 +230,5 @@ public class Access {
     return false;
   }
 
-  public ArrayList<String> getApplicationList(Connection connection)
-      throws SQLException {
-    DatabaseMetaData metaData = connection.getMetaData();
-    ResultSet rs = metaData.getTables(null, null, "%_httprequestinfo", null);
-    ArrayList<String> applicationList = new ArrayList<String>();
-    try {
-      while (rs.next()) {
-        String sTmp = rs.getString(3);
-        applicationList.add(sTmp.substring(0, sTmp.indexOf('_')));
-      }
-      System.out.println(applicationList);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    return applicationList;
-  }
 
-  public boolean createApplicationTables() throws SQLException {
-    // TODO(xcdu)
-    return true;
-  }
 }
