@@ -6,8 +6,8 @@ public class SqlStatementBuilder {
   private static final int OVERVIEW_TOP_ERROR_RATE_NUMBER = 10;
 
   public enum NetworkType {
-    BOTH(""), WIFI("networkinfo.networkType=WIFI"), MOBILE(
-        "networkinfo.networkType=MOBILE");
+    BOTH(""), WIFI("networkinfo.networkType='WIFI'"), MOBILE(
+        "networkinfo.networkType='MOBILE'");
     private String statementNetworkType;
 
     private NetworkType(String statement) {
