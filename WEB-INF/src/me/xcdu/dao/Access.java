@@ -112,23 +112,23 @@ public class Access {
     return infoArray;
   }
 
-  private ArrayList<NetworkInfo> castResultSetToNetworkInfo(ResultSet rs) {
-    ArrayList<NetworkInfo> infoArray = new ArrayList<NetworkInfo>();
-    try {
-      while (rs.next()) {
-        NetworkInfo obj = new NetworkInfo(rs.getLong("reqID"),
-            rs.getString("networkType"), rs.getString("networkName"),
-            rs.getInt("WIFISignalLevel"), rs.getInt("cellSignalLevel"),
-            rs.getInt("MCC"), rs.getInt("MNC"), rs.getInt("LAC"),
-            rs.getInt("firstMileLatency"),
-            rs.getInt("firstMilePacketLossRate"));
-        infoArray.add(obj);
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    return infoArray;
-  }
+  // private ArrayList<NetworkInfo> castResultSetToNetworkInfo(ResultSet rs) {
+  // ArrayList<NetworkInfo> infoArray = new ArrayList<NetworkInfo>();
+  // try {
+  // while (rs.next()) {
+  // NetworkInfo obj = new NetworkInfo(rs.getLong("reqID"),
+  // rs.getString("networkType"), rs.getString("networkName"),
+  // rs.getInt("WIFISignalLevel"), rs.getInt("cellSignalLevel"),
+  // rs.getInt("MCC"), rs.getInt("MNC"), rs.getInt("LAC"),
+  // rs.getInt("firstMileLatency"),
+  // rs.getInt("firstMilePacketLossRate"));
+  // infoArray.add(obj);
+  // }
+  // } catch (Exception e) {
+  // e.printStackTrace();
+  // }
+  // return infoArray;
+  // }
 
   public ArrayList<UrlIndex> getUrlIndexList(Connection connection,
       String targetApplication, String sortBy) throws SQLException {
@@ -171,7 +171,6 @@ public class Access {
         String sTmp = rs.getString(3);
         applicationList.add(sTmp.substring(0, sTmp.indexOf('_')));
       }
-      System.out.println(applicationList);
     } catch (Exception e) {
       e.printStackTrace();
     }

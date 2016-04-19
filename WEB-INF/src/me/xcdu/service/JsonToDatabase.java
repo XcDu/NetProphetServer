@@ -31,40 +31,48 @@ public class JsonToDatabase extends HttpServlet {
   protected void doPost(HttpServletRequest request,
       HttpServletResponse response) throws ServletException, IOException {
     String targetApplication = request.getHeader("X-Application-Name");
-    System.out.println(targetApplication);
     ArrayList<String> applicationList = null;
     try {
       applicationList = new AccessManager().getApplicationList();
       if (!applicationList.contains(targetApplication)) {
-        new AccessManager().createApplicationTable(targetApplication);
+        accsessManager.createApplicationTable(targetApplication);
       }
 
       StringBuffer jsonBuffer = new StringBuffer();
-      String tmpLine = null;
       try {
         BufferedReader bufferedReader = request.getReader();
-        while ((tmpLine = bufferedReader.readLine()) != null)
+        String tmpLine = null;
+        while ((tmpLine = bufferedReader.readLine()) != null) {
           jsonBuffer.append(tmpLine);
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-      try {
-        int splitIndex = jsonBuffer.indexOf("}") + 1;
-        String httpRequestInfoJson =
-            jsonBuffer.toString().substring(1, splitIndex);
-        String networkInfoJson = jsonBuffer.toString().substring(splitIndex + 1,
-            jsonBuffer.length() - 1);
-        Gson gson = new Gson();
-        HttpRequestInfo httpRequestInfo =
-            gson.fromJson(httpRequestInfoJson, HttpRequestInfo.class);
-        NetworkInfo networkInfo =
-            gson.fromJson(networkInfoJson, NetworkInfo.class);
-        accsessManager.insertHttpRequestInfo(targetApplication,
-            httpRequestInfo);
-        accsessManager.insertNetworkInfo(targetApplication, networkInfo);
-        response.getWriter().write("Succeed");
-      } catch (ParseException e) {
-        throw new IOException("Error parsing JSON request string");
+        }
+        String json = jsonBuffer.toString();
+        try {
+          int begin = json.indexOf('{'), end = json.indexOf('}');
+          while (begin >= 0 && end >= 0) {
+            Gson gson = new Gson();
+            String jsonObject = json.substring(begin, end + 1);
+            json = json.substring(end + 1);
+            String[] typeJudgementArray = jsonObject.split(",");
+            if (typeJudgementArray.length == HttpRequestInfo.class
+                .getDeclaredFields().length) {
+              accsessManager.insertHttpRequestInfo(targetApplication,
+                  gson.fromJson(jsonObject, HttpRequestInfo.class));
+            } else if (typeJudgementArray.length == NetworkInfo.class
+                .getDeclaredFields().length) {
+              accsessManager.insertNetworkInfo(targetApplication,
+                  gson.fromJson(jsonObject, NetworkInfo.class));
+            } else {
+              throw new ServletException("Json converts error");
+            }
+            begin = json.indexOf('{');
+            end = json.indexOf('}');
+          }
+
+        } catch (ParseException e) {
+          throw new IOException("Error parsing JSON request string");
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
       } catch (Exception e) {
         e.printStackTrace();
       }
