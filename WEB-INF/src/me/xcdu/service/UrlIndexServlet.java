@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 import com.google.gson.Gson;
 
 import me.xcdu.bo.UrlIndex;
@@ -17,6 +19,7 @@ import me.xcdu.dto.AccessManager;
 
 public class UrlIndexServlet extends HttpServlet {
   public static final long serialVersionUID = 1L;
+  private static Logger logger = Logger.getLogger(UrlIndexServlet.class);
 
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -25,16 +28,18 @@ public class UrlIndexServlet extends HttpServlet {
     try {
       String app = request.getParameter("app");
       System.out.println("application:" + app);
+      String targetTable = accessManager.getApplicationsMap().get(app);
       String sortBy = request.getParameter("sortBy");
       System.out.println("Sortby:" + sortBy);
-      ArrayList<UrlIndex> urlIndex = accessManager.getUrlIndex(app, sortBy);
+      ArrayList<UrlIndex> urlIndex =
+          accessManager.getUrlIndex(targetTable, sortBy);
       String respJson = new Gson().toJson(urlIndex);
       // System.out.println(respJson);
       response.setContentType("application/json");
       response.setCharacterEncoding("utf-8");
       response.getWriter().write(respJson);
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error(e.getMessage());
     }
 
   }

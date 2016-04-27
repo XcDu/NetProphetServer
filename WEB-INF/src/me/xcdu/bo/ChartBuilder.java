@@ -61,6 +61,7 @@ public class ChartBuilder {
     public ArrayList<Long> data;
 
     public DelayStackedBarChartSeries() {
+      name = "";
       data = new ArrayList<Long>();
     }
 
@@ -92,6 +93,8 @@ public class ChartBuilder {
     public ArrayList<DelayPieChartData> data;
 
     public DelayPieChartSeries() {
+      name = "";
+      colorByPoint = true;
       data = new ArrayList<DelayPieChartData>();
     }
   }
@@ -99,7 +102,10 @@ public class ChartBuilder {
     public String name;
     public Double y;
 
-    public DelayPieChartData() {}
+    public DelayPieChartData() {
+      this.name = "";
+      this.y = new Double(0);
+    }
 
     public DelayPieChartData(String name, Double y) {
       this.name = name;
@@ -107,8 +113,12 @@ public class ChartBuilder {
     }
   }
   // Url List Error Rate Chart
-  public class ErroRateChart {
-    public double errorRate = 0;
+  public class ErrorRateChart {
+    public Double errorRate;
+
+    public ErrorRateChart() {
+      errorRate = 0.0;
+    }
   }
   // Redirection Chart
   public class RedirectionChart {
@@ -140,8 +150,8 @@ public class ChartBuilder {
     return new DelayPieChart();
   }
 
-  public ErroRateChart createErrorRateChart() {
-    return new ErroRateChart();
+  public ErrorRateChart createErrorRateChart() {
+    return new ErrorRateChart();
   }
 
   public RedirectionChart createRedirectionChart() {

@@ -1,7 +1,7 @@
 <%@page import="me.xcdu.dto.AccessManager"%>
 <%@page import="java.util.ArrayList"%>
 <%
-	ArrayList<String> applicationList = new AccessManager().getApplicationList();
+  ArrayList<String> applicationList = new AccessManager().getApplicationsList();
 %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"  errorPage="" %>
 <!DOCTYPE html>
@@ -16,7 +16,7 @@
     <link rel="shortcut icon" href="images/favicon.png" type="image/png">
     <link rel="icon" href="images/favicon.png" type="image/png">
 
-    <link href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
 
     <link href="css/style.css" rel="stylesheet" type="text/css">
 

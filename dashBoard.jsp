@@ -1,9 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"  errorPage="" %>
 <!DOCTYPE html>
-<%
-    String tests=request.getParameter("application");
-	System.out.println("testParameter:"+tests);
-%>
 <html>
   <head>
     <meta charset="utf-8">
@@ -17,7 +13,7 @@
     <link rel="icon" href="images/favicon.png" type="image/png">
 
     <!-- Bootstrap core CSS -->
-    <link href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
 
     <!-- Custom styles for this template -->
     <link href="css/style.css" rel="stylesheet" type="text/css">

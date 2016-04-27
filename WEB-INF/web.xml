@@ -5,7 +5,7 @@
     http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 
 <welcome-file-list>
-	<welcome-file>applications.jsp</welcome-file>
+    <welcome-file>applications.jsp</welcome-file>
 </welcome-file-list>
 <servlet>
     <servlet-name>JsonToDatabase</servlet-name>
@@ -19,6 +19,15 @@
     <servlet-name>ChartServlet</servlet-name>
     <servlet-class>me.xcdu.service.ChartServlet</servlet-class>
 </servlet>
+ <servlet>  
+    <servlet-name>LogServlet</servlet-name>  
+    <servlet-class>me.xcdu.service.LogServlet</servlet-class>  
+    <init-param>  
+         <param-name>log4j-properties-location</param-name>  
+         <param-value>/WEB-INF/log4j.properties</param-value>  
+     </init-param>  
+   	<load-on-startup>1</load-on-startup>  
+</servlet>  
 
 <servlet-mapping>
     <servlet-name>JsonToDatabase</servlet-name>

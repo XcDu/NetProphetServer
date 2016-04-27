@@ -7,7 +7,7 @@ import com.google.gson.Gson;
 import me.xcdu.bo.ChartBuilder.DelayLineChart;
 import me.xcdu.bo.ChartBuilder.DelayPieChart;
 import me.xcdu.bo.ChartBuilder.DelayStackedBarChart;
-import me.xcdu.bo.ChartBuilder.ErroRateChart;
+import me.xcdu.bo.ChartBuilder.ErrorRateChart;
 import me.xcdu.bo.ChartBuilder.RedirectionChart;
 import me.xcdu.po.HttpRequestInfo;
 
@@ -16,7 +16,7 @@ public class UrlListCharts {
   private DelayLineChart delayLineChart;
   private DelayStackedBarChart delayStackedBarChart;
   private DelayPieChart delayPieChart;
-  private ErroRateChart errorRateChart;
+  private ErrorRateChart errorRateChart;
   private RedirectionChart redirectionChart;
 
   public UrlListCharts() {
@@ -66,6 +66,8 @@ public class UrlListCharts {
   }
 
   public void setDelayStackedBarChart(ArrayList<HttpRequestInfo> infoArray) {
+    if (infoArray.isEmpty())
+      return;
     delayStackedBarChart.categories.clear();
     delayStackedBarChart.seriesAddElementWithName("DNS Delay");
     delayStackedBarChart.seriesAddElementWithName("Connection Delay");
@@ -99,6 +101,7 @@ public class UrlListCharts {
   public void setDelayPieChart(ArrayList<HttpRequestInfo> infoArray) {
     if (infoArray.isEmpty()) {
       System.out.println("Error no element");
+      return;
     }
     delayPieChart.series.clear();
     delayPieChart.seriesAddElement();
@@ -133,8 +136,9 @@ public class UrlListCharts {
   public void setErrorRateChart(ArrayList<HttpRequestInfo> infoArray) {
     if (infoArray.isEmpty()) {
       System.out.println("Error Rate Chart Error, no element");
+      return;
     }
-    double error_cnt = 0;
+    Double error_cnt = 0.0;
     for (int i = 0; i < infoArray.size(); ++i) {
       if (infoArray.get(i).isFailedRequest()) {
         error_cnt++;
@@ -142,6 +146,9 @@ public class UrlListCharts {
     }
     if (!infoArray.isEmpty()) {
       errorRateChart.errorRate = error_cnt / infoArray.size();
+    } else {
+      System.out.println("Error Rate Chart Error.");
+      errorRateChart.errorRate = error_cnt;
     }
   }
 

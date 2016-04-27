@@ -9,8 +9,7 @@
 	<classpathentry kind="var" path="TOMCAT_HOME/lib/annotations-api.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/gson-2.2.1.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/highcharts-java-api.jar"/>
-	<classpathentry kind="lib" path="WEB-INF/lib/log4j-api-2.5.jar"/>
-	<classpathentry kind="lib" path="WEB-INF/lib/log4j-core-2.5.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/mysql-connector-java-5.0.8-bin.jar"/>
+	<classpathentry kind="lib" path="D:/Projects/git/NetProphetServer/WEB-INF/lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="output" path="WEB-INF/classes"/>
 </classpath>

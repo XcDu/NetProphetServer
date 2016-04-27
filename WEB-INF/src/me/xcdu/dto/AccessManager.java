@@ -3,6 +3,7 @@ package me.xcdu.dto;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Map;
 
 import me.xcdu.bo.Charts;
 import me.xcdu.bo.OverviewCharts;
@@ -44,13 +45,13 @@ public class AccessManager {
     return overviewCharts;
   }
 
-  public Charts<UrlListCharts> getUrlListCharts(String targetApplication,
+  public Charts<UrlListCharts> getUrlListCharts(String targetTable,
       String targetUrl) throws Exception {
     Charts<UrlListCharts> urlListCharts = new Charts<UrlListCharts>();
-    urlListCharts.setWifi(access.getUrlListCharts(connection, targetApplication,
+    urlListCharts.setWifi(access.getUrlListCharts(connection, targetTable,
         targetUrl, NetworkType.WIFI));
-    urlListCharts.setMobile(access.getUrlListCharts(connection,
-        targetApplication, targetUrl, NetworkType.MOBILE));
+    urlListCharts.setMobile(access.getUrlListCharts(connection, targetTable,
+        targetUrl, NetworkType.MOBILE));
     return urlListCharts;
   }
 
@@ -71,23 +72,27 @@ public class AccessManager {
   // return access.getHttpRequestInfo(connection, targetUrl, errorFilter, sortBy,
   // sortType);
   // }
-  public ArrayList<String> getApplicationList() throws SQLException {
-    return access.getApplicationList(connection);
+  public ArrayList<String> getApplicationsList() throws SQLException {
+    return access.getApplicationsList(connection);
   }
 
-  public boolean createApplicationTable(String targetApplication)
+  public Map<String, String> getApplicationsMap() throws SQLException {
+    return access.getApplicationsMap(connection);
+  }
+
+  public String createApplicationTable(String targetApplication, int id)
       throws SQLException {
-    return access.createApplicationTables(connection, targetApplication);
+    return access.createApplicationTables(connection, targetApplication, id);
   }
 
-  public boolean insertNetworkInfo(String targetApplication, NetworkInfo info)
+  public boolean insertNetworkInfo(String targetTable, NetworkInfo info)
       throws Exception {
-    return access.insertNetworkInfo(connection, targetApplication, info);
+    return access.insertNetworkInfo(connection, targetTable, info);
   }
 
-  public boolean insertHttpRequestInfo(String targetApplication,
-      HttpRequestInfo info) throws Exception {
-    return access.insertHttpRequestInfo(connection, targetApplication, info);
+  public boolean insertHttpRequestInfo(String targetTable, HttpRequestInfo info)
+      throws Exception {
+    return access.insertHttpRequestInfo(connection, targetTable, info);
   }
 
 }

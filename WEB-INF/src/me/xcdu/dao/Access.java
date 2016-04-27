@@ -2,13 +2,15 @@ package me.xcdu.dao;
 
 import java.net.URL;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import org.apache.log4j.Logger;
 
 import me.xcdu.bo.ChartBuilder;
 import me.xcdu.bo.ChartBuilder.TopErrorRateChart;
@@ -21,7 +23,7 @@ import me.xcdu.po.NetworkInfo;
 
 public class Access {
   public static final long serialVersionUID = 1L;
-
+  private static Logger logger = Logger.getLogger(Access.class);
   private SqlStatementBuilder sqlStatementBuilder;
 
   public Access() {
@@ -41,17 +43,17 @@ public class Access {
         chart.data.add(rs.getInt("count"));
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error(e.getMessage());
     }
     return chart;
   }
 
   public TopErrorRateChart getTopErrorRateChart(Connection connection,
-      String targetApplicatoin, NetworkType networkType) throws SQLException {
+      String targetTable, NetworkType networkType) throws SQLException {
     TopErrorRateChart chart = new ChartBuilder().createTopErrorRateChart();
     PreparedStatement preparedStatement =
         connection.prepareStatement(sqlStatementBuilder
-            .getOverviewTopErrorRateSql(targetApplicatoin, networkType));
+            .getOverviewTopErrorRateSql(targetTable, networkType));
     ResultSet rs = preparedStatement.executeQuery();
     try {
       while (rs.next()) {
@@ -59,21 +61,24 @@ public class Access {
         chart.errorRate.add(rs.getDouble("errorRate"));
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error(e.getMessage());
     }
     return chart;
   }
 
   public UrlListCharts getUrlListCharts(Connection connection,
-      String targetApplication, String targetUrl, NetworkType networkType)
+      String targetTable, String targetUrl, NetworkType networkType)
       throws SQLException {
+    System.out.println("without redirection part");
     PreparedStatement preparedStatement =
         connection.prepareStatement(sqlStatementBuilder
-            .getUrlListChartsSql(targetApplication, targetUrl, networkType));
+            .getUrlListChartsSql(targetTable, targetUrl, networkType));
+    System.out.println(preparedStatement.toString());
     ResultSet rsWithoutRedirection = preparedStatement.executeQuery();
-    preparedStatement = connection.prepareStatement(
-        sqlStatementBuilder.getUrlListRedirectionChartsSql(targetApplication,
-            targetUrl, networkType));
+    System.out.println("redirection part");
+    preparedStatement = connection.prepareStatement(sqlStatementBuilder
+        .getUrlListRedirectionChartsSql(targetTable, targetUrl, networkType));
+    System.out.println(preparedStatement.toString());
     ResultSet rsWithRedirection = preparedStatement.executeQuery();
     UrlListCharts charts = new UrlListCharts();
     charts.setAllCharts(
@@ -89,7 +94,9 @@ public class Access {
       ResultSet rs) {
     ArrayList<HttpRequestInfo> infoArray = new ArrayList<HttpRequestInfo>();
     try {
+      int cnt = 0;
       while (rs.next()) {
+        System.out.println(cnt++);
         HttpRequestInfo obj = new HttpRequestInfo(rs.getLong("reqID"),
             rs.getString("url"), rs.getString("method"), rs.getString("userID"),
             rs.getLong("prevReqID"), rs.getLong("nextReqID"),
@@ -107,7 +114,7 @@ public class Access {
         infoArray.add(obj);
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error(e.getMessage());
     }
     return infoArray;
   }
@@ -131,9 +138,9 @@ public class Access {
   // }
 
   public ArrayList<UrlIndex> getUrlIndexList(Connection connection,
-      String targetApplication, String sortBy) throws SQLException {
+      String targetTable, String sortBy) throws SQLException {
     PreparedStatement statement = connection.prepareStatement(
-        sqlStatementBuilder.getUrlIndexSql(targetApplication, sortBy));
+        sqlStatementBuilder.getUrlIndexSql(targetTable, sortBy));
     System.out.println("Statement:" + statement.toString());
     ResultSet rs = statement.executeQuery();
     ArrayList<UrlIndex> urlIndexList = new ArrayList<UrlIndex>();
@@ -156,42 +163,67 @@ public class Access {
         }
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error(e.getMessage());
     }
     return urlIndexList;
   }
 
-  public ArrayList<String> getApplicationList(Connection connection)
+  public ArrayList<String> getApplicationsList(Connection connection)
       throws SQLException {
-    DatabaseMetaData metaData = connection.getMetaData();
-    ResultSet rs = metaData.getTables(null, null, "%_httprequestinfo", null);
-    ArrayList<String> applicationList = new ArrayList<String>();
+    PreparedStatement statement = connection
+        .prepareStatement(sqlStatementBuilder.getApplicationsListSql());
+    ResultSet rs = statement.executeQuery();
+    ArrayList<String> applicationsList = new ArrayList<String>();
     try {
       while (rs.next()) {
-        String sTmp = rs.getString(3);
-        applicationList.add(sTmp.substring(0, sTmp.indexOf('_')));
+        applicationsList.add(rs.getString("application_name"));
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error(e.getMessage());
     }
-    return applicationList;
+    return applicationsList;
   }
 
-  public boolean createApplicationTables(Connection connection,
-      String targetApplication) throws SQLException {
-    connection.createStatement().execute(
-        sqlStatementBuilder.createHttpRequestinfoTable(targetApplication));
-    connection.createStatement()
-        .execute(sqlStatementBuilder.createNetworkinfoTable(targetApplication));
-    return true;
+  public Map<String, String> getApplicationsMap(Connection connection)
+      throws SQLException {
+    PreparedStatement statement = connection
+        .prepareStatement(sqlStatementBuilder.getApplicationsMapSql());
+    ResultSet rs = statement.executeQuery();
+    Map<String, String> applicationsMap = new TreeMap<String, String>();
+    try {
+      while (rs.next()) {
+        applicationsMap.put(rs.getString("application_name"),
+            rs.getString("table_name"));
+      }
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+    }
+    return applicationsMap;
+  }
+
+  public String createApplicationTables(Connection connection,
+      String targetApplication, int id) throws SQLException {
+    String targetTable = "app" + id;
+    try {
+      connection.createStatement().execute(sqlStatementBuilder
+          .InsertToApplicationMapSql(targetApplication, targetTable));
+      connection.createStatement()
+          .execute(sqlStatementBuilder.createHttpRequestinfoTable(targetTable));
+      connection.createStatement()
+          .execute(sqlStatementBuilder.createNetworkinfoTable(targetTable));
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+      return null;
+    }
+    return targetTable;
   }
 
   public boolean insertHttpRequestInfo(Connection connection,
-      String targetApplication, HttpRequestInfo info) throws SQLException {
+      String targetTable, HttpRequestInfo info) throws SQLException {
     PreparedStatement statement = connection.prepareStatement(
-        "insert into " + targetApplication + "_httprequestinfo values("
-            + info.getReqID() + "," + "\"" + info.getUrl() + "\"," + "\""
-            + info.getMethod() + "\"," + "\"" + info.getUserID() + "\","
+        "insert into " + targetTable + "_httprequestinfo values("
+            + info.getReqID() + "," + "'" + info.getUrl() + "'," + "'"
+            + info.getMethod() + "'," + "'" + info.getUserID() + "',"
             + info.getPrevReqID() + "," + info.getNextReqID() + ","
             + info.getStartTime() + "," + info.getEndTime() + ","
             + info.getOverallDelay() + "," + info.getDnsDelay() + ","
@@ -201,30 +233,30 @@ public class Access {
             + info.getRespTransDelay() + "," + info.isUseConnCache() + ","
             + info.isUseDNSCache() + "," + info.isUseRespCache() + ","
             + info.getRespSize() + "," + info.getHTTPCode() + ","
-            + info.getReqSize() + "," + info.isFailedRequest() + "," + "\""
-            + info.getErrorMsg() + "\"," + "\"" + info.getDetailedErrorMsg()
-            + "\"," + info.getTransID() + "," + info.getTransType() + ");");
+            + info.getReqSize() + "," + info.isFailedRequest() + "," + "'"
+            + info.getErrorMsg() + "'," + "'" + info.getDetailedErrorMsg()
+            + "'," + info.getTransID() + "," + info.getTransType() + ");");
     try {
       return statement.execute();
     } catch (SQLException e) {
-      e.printStackTrace();
+      logger.error(e.getMessage());
     }
     return false;
   }
 
-  public boolean insertNetworkInfo(Connection connection,
-      String targetApplication, NetworkInfo info) throws SQLException {
+  public boolean insertNetworkInfo(Connection connection, String targetTable,
+      NetworkInfo info) throws SQLException {
     PreparedStatement statement = connection.prepareStatement("insert into "
-        + targetApplication + "_networkinfo values(" + info.getReqID() + ","
-        + "\"" + info.getNetworkType() + "\"," + "\"" + info.getNetworkName()
-        + "\"," + info.getWIFISignalLevel() + "," + info.getCellSignalLevel()
-        + "," + info.getMCC() + "," + info.getMNC() + "," + info.getLAC() + ","
+        + targetTable + "_networkinfo values(" + info.getReqID() + "," + "'"
+        + info.getNetworkType() + "'," + "'" + info.getNetworkName() + "',"
+        + info.getWIFISignalLevel() + "," + info.getCellSignalLevel() + ","
+        + info.getMCC() + "," + info.getMNC() + "," + info.getLAC() + ","
         + info.getFirstMileLatency() + "," + info.getFirstMilePacketLossRate()
         + ");");
     try {
       return statement.execute();
     } catch (SQLException e) {
-      e.printStackTrace();
+      logger.error(e.getMessage());
     }
     return false;
   }
