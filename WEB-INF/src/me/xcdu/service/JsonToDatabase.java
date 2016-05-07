@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 import javax.servlet.ServletException;
@@ -23,7 +22,6 @@ import me.xcdu.po.NetworkInfo;
 public class JsonToDatabase extends HttpServlet {
   public static final long serialVersionUID = 1L;
   private static Logger logger = Logger.getLogger(JsonToDatabase.class);
-  private AccessManager accsessManager = new AccessManager();
 
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -34,32 +32,27 @@ public class JsonToDatabase extends HttpServlet {
   @Override
   protected void doPost(HttpServletRequest request,
       HttpServletResponse response) throws ServletException, IOException {
+    AccessManager accessManager = new AccessManager();
     String targetApplication = request.getHeader("X-Application-Name");
-    Map<String, String> applicationsMap = null;
-    String targetTable = null;
     try {
-      applicationsMap = new AccessManager().getApplicationsMap();
-      if (!applicationsMap.containsKey(targetApplication)) {
-        targetTable = accsessManager.createApplicationTable(targetApplication,
-            applicationsMap.size());
-        if (targetTable == null) {
-          throw new Exception(
-              "Create application table:" + targetTable + " failed.");
-        }
-      } else {
-        targetTable = applicationsMap.get(targetApplication);
+      String targetTable = accessManager.getTargetTable(targetApplication);
+      if (targetTable == null) {
+        targetTable = accessManager.createApplicationTable(targetApplication);
       }
+      System.out.println("JsonToDatabase: targetapp: " + targetApplication
+          + " targetTable: " + targetTable);
       try {
-        System.out.println("here1");
         BufferedReader bufferedReader = null;
         if (request.getHeader("Content-Encoding") != null && request
             .getHeader("Content-Encoding").toLowerCase().contains("gzip")) {
-          System.out.println("uncompressing...");
+          System.out.println("JsonToDatabase servlet: uncompressing...");
           bufferedReader = new BufferedReader(new InputStreamReader(
               new GZIPInputStream(request.getInputStream()),
               Charset.forName("UTF-8")));
         } else {
-          bufferedReader = request.getReader();
+          bufferedReader =
+              new BufferedReader(new InputStreamReader(request.getInputStream(),
+                  Charset.forName("UTF-8")));
         }
         String strLine = "";
         StringBuffer sb = new StringBuffer();
@@ -67,36 +60,36 @@ public class JsonToDatabase extends HttpServlet {
           sb.append(strLine);
         }
         try {
-          // int begin = json.indexOf('{'), end = json.indexOf('}');
-          // while (begin >= 0 && end >= 0) {
-          // Gson gson = new Gson();
-          // String jsonObject = json.substring(begin, end + 1);
-          // json = json.substring(end + 1);
-          // String[] typeJudgementArray = jsonObject.split(",");
-          // if (typeJudgementArray.length == HttpRequestInfo.class
-          // .getDeclaredFields().length) {
-          // accsessManager.insertHttpRequestInfo(targetTable,
-          // gson.fromJson(jsonObject, HttpRequestInfo.class));
-          // } else if (typeJudgementArray.length == NetworkInfo.class
-          // .getDeclaredFields().length) {
-          // accsessManager.insertNetworkInfo(targetTable,
-          // gson.fromJson(jsonObject, NetworkInfo.class));
-          // } else {
-          // throw new ServletException("Json converts error");
-          // }
-          // begin = json.indexOf('{');
-          // end = json.indexOf('}');
           String json = sb.toString();
-          // System.out.println(json);
+          System.out.println("received post data:\n" + json);
           Gson gson = new Gson();
           HttpRequestInfo[] reqRS = null;
           NetworkInfo[] netRS = null;
           try {
             reqRS = gson.fromJson(json, HttpRequestInfo[].class);
+            for (int i = 0; i < reqRS.length - 1; ++i) {
+              for (int j = i + 1; j < reqRS.length; ++j) {
+                if (reqRS[i].getReqID() == reqRS[j].getReqID()
+                    && reqRS[i].getUserID() == reqRS[i].getUserID())
+                  System.out.println(
+                      "\n Two data duplicate in " + targetApplication + ":\n"
+                          + reqRS[i].toString() + "\n" + reqRS[j].toString());
+              }
+            }
             if (reqRS == null || reqRS.length == 0
                 || reqRS[0].getUrl() == null) {
               reqRS = null;
               netRS = gson.fromJson(json, NetworkInfo[].class);
+              // Test(xcdu)
+              for (int i = 0; i < netRS.length - 1; ++i) {
+                for (int j = i + 1; j < netRS.length; ++j) {
+                  if (netRS[i].getReqID() == netRS[j].getReqID()
+                      && netRS[i].getUserID() == netRS[i].getUserID())
+                    System.out.println(
+                        "\n Two data duplicate in " + targetApplication + ":\n"
+                            + netRS[i].toString() + "\n" + netRS[j].toString());
+                }
+              }
             }
           } catch (Exception e) {
             logger.error(e.getMessage());
@@ -104,23 +97,24 @@ public class JsonToDatabase extends HttpServlet {
 
           // Now we have the objects.
           if (reqRS != null) {
-            System.out.println("length of reqRS: " + reqRS.length);
+            System.out.println(
+                "[" + targetApplication + "]:length of reqRS: " + reqRS.length);
             for (HttpRequestInfo obj : reqRS) {
               // do something here
-              logger.info(
-                  "  " + obj.getUrl() + " delay:" + obj.getOverallDelay());
-              accsessManager.insertHttpRequestInfo(targetTable, obj);
+              // logger.info(obj.toString());
+              accessManager.insertHttpRequestInfo(targetTable, obj);
             }
           } else {
             // System.out.println("length of reqRS: 0");
           }
 
           if (netRS != null) {
-            System.out.println("length of netRS: " + netRS.length);
+            System.out.println(
+                "[" + targetApplication + "]:length of netRS: " + netRS.length);
             for (NetworkInfo obj : netRS) {
               // do something here
-              logger.info("  networkType:" + obj.getNetworkType());
-              accsessManager.insertNetworkInfo(targetTable, obj);
+              // logger.info(obj.toString());
+              accessManager.insertNetworkInfo(targetTable, obj);
             }
           } else {
             // System.out.println("length of netRS: 0");

@@ -88,29 +88,29 @@ public class SqlStatementBuilder {
   }
 
   public String getApplicationsListSql() {
-    String statement = "select distinct application_name from applications_map "
+    String statement = "select application_name from applications_map "
         + "order by application_name asc";
     return statement;
   }
 
-  public String getApplicationsMapSql() {
+  public String getTargetTableSql(String targetApplication) {
     String statement =
-        "select application_name, table_name from applications_map";
+        "select id from applications_map where application_name='"
+            + targetApplication + "'";
     return statement;
   }
 
-  public String InsertToApplicationMapSql(String targetApplication,
-      String targetTable) {
-    String statement = "insert ignore into applications_map values(\""
-        + targetApplication + "\", \"" + targetTable + "\");";
+  public String InsertToApplicationMapSql(String targetApplication) {
+    String statement = "insert ignore into applications_map values( null , "
+        + "\"" + targetApplication + "\");";
     System.out.println(statement);
     return statement;
   }
 
   public String createHttpRequestinfoTable(String targetTable) {
     String statement = "CREATE TABLE IF NOT EXISTS " + targetTable
-        + "_httprequestinfo (" + " reqID bigint(20) NOT NULL AUTO_INCREMENT,"
-        + " url varchar(2083) DEFAULT NULL,"
+        + "_httprequestinfo (" + " id bigint(20) NOT NULL AUTO_INCREMENT,"
+        + " reqID bigint(20) DEFAULT NULL," + " url varchar(2083) DEFAULT NULL,"
         + " method varchar(256) DEFAULT NULL,"
         + " userID varchar(256) DEFAULT NULL,"
         + " prevReqID bigint(20) DEFAULT NULL,"
@@ -134,7 +134,8 @@ public class SqlStatementBuilder {
         + " isFailedRequest tinyint(1) DEFAULT NULL,"
         + " errorMsg text, detailedErrorMsg text,"
         + " transID bigint(20) DEFAULT NULL,"
-        + " transType int(11) DEFAULT NULL," + " PRIMARY KEY (reqID))"
+        + " transType int(11) DEFAULT NULL," + " PRIMARY KEY (id),"
+        + " UNIQUE index1 (reqID, userID) )"
         + " ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;";
 
     return statement;
@@ -142,7 +143,9 @@ public class SqlStatementBuilder {
 
   public String createNetworkinfoTable(String targetTable) {
     String statement = " CREATE TABLE IF NOT EXISTS " + targetTable
-        + "_networkinfo (" + " reqID bigint(20) NOT NULL AUTO_INCREMENT,"
+        + "_networkinfo (" + " id bigint(20) NOT NULL AUTO_INCREMENT,"
+        + " reqID bigint(20) DEFAULT NULL,"
+        + " userID varchar(256) DEFAULT NULL,"
         + " networkType varchar(256) DEFAULT NULL,"
         + " networkName varchar(256) DEFAULT NULL,"
         + " WIFISignalLevel int(11) DEFAULT NULL,"
@@ -150,7 +153,7 @@ public class SqlStatementBuilder {
         + " MNC int(11) DEFAULT NULL," + " LAC int(11) DEFAULT NULL,"
         + " firstMileLatency int(11) DEFAULT NULL,"
         + " firstMilePacketLossRate int(11) DEFAULT NULL,"
-        + " PRIMARY KEY (reqID))"
+        + " PRIMARY KEY (id)," + " UNIQUE index1 (reqID, userID) )"
         + " ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;";
     return statement;
   }

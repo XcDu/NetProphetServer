@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -123,7 +122,7 @@ public class Access {
   // ArrayList<NetworkInfo> infoArray = new ArrayList<NetworkInfo>();
   // try {
   // while (rs.next()) {
-  // NetworkInfo obj = new NetworkInfo(rs.getLong("reqID"),
+  // NetworkInfo obj = new NetworkInfo(rs.getLong("reqID"),rs.getString("userID"),
   // rs.getString("networkType"), rs.getString("networkName"),
   // rs.getInt("WIFISignalLevel"), rs.getInt("cellSignalLevel"),
   // rs.getInt("MCC"), rs.getInt("MNC"), rs.getInt("LAC"),
@@ -184,36 +183,60 @@ public class Access {
     return applicationsList;
   }
 
-  public Map<String, String> getApplicationsMap(Connection connection)
+  public String getTargetTable(Connection connection, String targetApplication)
       throws SQLException {
-    PreparedStatement statement = connection
-        .prepareStatement(sqlStatementBuilder.getApplicationsMapSql());
-    ResultSet rs = statement.executeQuery();
-    Map<String, String> applicationsMap = new TreeMap<String, String>();
+    String targetTable = null;
+    PreparedStatement preparedStatement = connection.prepareStatement(
+        sqlStatementBuilder.getTargetTableSql(targetApplication));
+    ResultSet rs = preparedStatement.executeQuery();
     try {
+      ArrayList<Integer> idList = new ArrayList<Integer>();
       while (rs.next()) {
-        applicationsMap.put(rs.getString("application_name"),
-            rs.getString("table_name"));
+        idList.add(rs.getInt("id"));
+      }
+      if (idList.size() > 1) {
+        System.out.println(idList);
+        throw new Exception("MultiResult when fetch the target table");
+      } else if (idList.size() == 1) {
+        targetTable = "app" + idList.get(0);
       }
     } catch (Exception e) {
+      e.printStackTrace();
       logger.error(e.getMessage());
     }
-    return applicationsMap;
+    return targetTable;
   }
 
   public String createApplicationTables(Connection connection,
-      String targetApplication, int id) throws SQLException {
-    String targetTable = "app" + id;
+      String targetApplication) throws SQLException {
+    String targetTable = null;
     try {
-      connection.createStatement().execute(sqlStatementBuilder
-          .InsertToApplicationMapSql(targetApplication, targetTable));
+      connection.createStatement().execute(
+          sqlStatementBuilder.InsertToApplicationMapSql(targetApplication));
+    } catch (Exception e) {
+      e.printStackTrace();
+      logger.error(e.getMessage());
+    }
+
+    targetTable = getTargetTable(connection, targetApplication);
+    if (targetTable == null) {
+      throw new SQLException("Null target table");
+    }
+
+    try {
       connection.createStatement()
           .execute(sqlStatementBuilder.createHttpRequestinfoTable(targetTable));
+    } catch (Exception e) {
+      // TODO: handle exception
+      e.printStackTrace();
+      logger.error(e.getMessage());
+    }
+    try {
       connection.createStatement()
           .execute(sqlStatementBuilder.createNetworkinfoTable(targetTable));
     } catch (Exception e) {
+      e.printStackTrace();
       logger.error(e.getMessage());
-      return null;
     }
     return targetTable;
   }
@@ -221,7 +244,7 @@ public class Access {
   public boolean insertHttpRequestInfo(Connection connection,
       String targetTable, HttpRequestInfo info) throws SQLException {
     PreparedStatement statement = connection.prepareStatement(
-        "insert into " + targetTable + "_httprequestinfo values("
+        "insert into " + targetTable + "_httprequestinfo values( null,"
             + info.getReqID() + "," + "'" + info.getUrl() + "'," + "'"
             + info.getMethod() + "'," + "'" + info.getUserID() + "',"
             + info.getPrevReqID() + "," + info.getNextReqID() + ","
@@ -239,6 +262,8 @@ public class Access {
     try {
       return statement.execute();
     } catch (SQLException e) {
+      System.out.println(targetTable + ":\n" + info.toString());
+      e.printStackTrace();
       logger.error(e.getMessage());
     }
     return false;
@@ -247,15 +272,17 @@ public class Access {
   public boolean insertNetworkInfo(Connection connection, String targetTable,
       NetworkInfo info) throws SQLException {
     PreparedStatement statement = connection.prepareStatement("insert into "
-        + targetTable + "_networkinfo values(" + info.getReqID() + "," + "'"
-        + info.getNetworkType() + "'," + "'" + info.getNetworkName() + "',"
-        + info.getWIFISignalLevel() + "," + info.getCellSignalLevel() + ","
-        + info.getMCC() + "," + info.getMNC() + "," + info.getLAC() + ","
-        + info.getFirstMileLatency() + "," + info.getFirstMilePacketLossRate()
-        + ");");
+        + targetTable + "_networkinfo values( null, " + info.getReqID() + ","
+        + "'" + info.getUserID() + "'," + "'" + info.getNetworkType() + "',"
+        + "'" + info.getNetworkName() + "'," + info.getWIFISignalLevel() + ","
+        + info.getCellSignalLevel() + "," + info.getMCC() + "," + info.getMNC()
+        + "," + info.getLAC() + "," + info.getFirstMileLatency() + ","
+        + info.getFirstMilePacketLossRate() + ");");
     try {
       return statement.execute();
     } catch (SQLException e) {
+      System.out.println(targetTable + ":\n" + info.toString());
+      e.printStackTrace();
       logger.error(e.getMessage());
     }
     return false;

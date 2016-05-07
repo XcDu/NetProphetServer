@@ -2,6 +2,7 @@ package me.xcdu.po;
 
 public class NetworkInfo {
   private long reqID;
+  private String userID;
   private String networkType; // "WIFI" or "mobile"
   private String networkName; // LIMIT 16
   private int WIFISignalLevel; // [0 - 4]
@@ -13,10 +14,11 @@ public class NetworkInfo {
   private int firstMileLatency; // ms
   private int firstMilePacketLossRate; // e.g., 40 -> 40%
 
-  public NetworkInfo(long reqID, String type, String name, int wifiSignal,
-      int cellSignal, int mcc, int mnc, int lac, int firstMileLat,
-      int firstMilePLR) {
+  public NetworkInfo(long reqID, String userID, String type, String name,
+      int wifiSignal, int cellSignal, int mcc, int mnc, int lac,
+      int firstMileLat, int firstMilePLR) {
     this.reqID = reqID;
+    this.userID = userID;
     this.networkName = name;
     this.networkType = type;
     this.WIFISignalLevel = wifiSignal;
@@ -31,10 +33,19 @@ public class NetworkInfo {
   @Override
   public String toString() {
     return String.format(
-        "REQ_ID:%d\n" + "TYPE:%s\n" + "NAME:%s\n" + "WIFISIG:%d\n"
-            + "CELLSIG:%d\n" + "MCC:%d\n" + "MNC:%d\n" + "LAC:%d",
-        reqID, networkType, networkName, WIFISignalLevel, cellSignalLevel, MCC,
-        MNC, LAC);
+        "REQ_ID:%d\n" + "USER_ID:%S\n" + "TYPE:%s\n" + "NAME:%s\n"
+            + "WIFISIG:%d\n" + "CELLSIG:%d\n" + "MCC:%d\n" + "MNC:%d\n"
+            + "LAC:%d",
+        reqID, userID, networkType, networkName, WIFISignalLevel,
+        cellSignalLevel, MCC, MNC, LAC);
+  }
+
+  public String getUserID() {
+    return userID;
+  }
+
+  public void setUserID(String userID) {
+    this.userID = userID;
   }
 
   public String getNetworkType() {

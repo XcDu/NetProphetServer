@@ -41,6 +41,7 @@ public class HttpRequestInfo {
   private int HTTPCode;
   private int reqSize; /* if post streaming data, the reqSize is 0 */
 
+
   // 6. Error information
   /*
    * Note for a redirection chain, an error can only be at the last request So for all the requests

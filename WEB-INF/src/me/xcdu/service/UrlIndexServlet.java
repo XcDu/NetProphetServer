@@ -28,7 +28,7 @@ public class UrlIndexServlet extends HttpServlet {
     try {
       String app = request.getParameter("app");
       System.out.println("application:" + app);
-      String targetTable = accessManager.getApplicationsMap().get(app);
+      String targetTable = accessManager.getTargetTable(app);
       String sortBy = request.getParameter("sortBy");
       System.out.println("Sortby:" + sortBy);
       ArrayList<UrlIndex> urlIndex =

@@ -23,8 +23,7 @@ public class ChartServlet extends HttpServlet {
     System.out.println("application:" + app);
     // TODO(xcdu): to be refined;
     try {
-      String targetTable = accessManager.getApplicationsMap().get(app);
-      System.out.println(targetTable);
+      String targetTable = accessManager.getTargetTable(app);
       String type = request.getParameter("type");
       if (type.equalsIgnoreCase("overview")) {
         try {

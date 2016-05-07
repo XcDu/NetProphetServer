@@ -3,7 +3,6 @@ package me.xcdu.dto;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Map;
 
 import me.xcdu.bo.Charts;
 import me.xcdu.bo.OverviewCharts;
@@ -76,13 +75,13 @@ public class AccessManager {
     return access.getApplicationsList(connection);
   }
 
-  public Map<String, String> getApplicationsMap() throws SQLException {
-    return access.getApplicationsMap(connection);
+  public String getTargetTable(String targetApplication) throws SQLException {
+    return access.getTargetTable(connection, targetApplication);
   }
 
-  public String createApplicationTable(String targetApplication, int id)
+  public String createApplicationTable(String targetApplication)
       throws SQLException {
-    return access.createApplicationTables(connection, targetApplication, id);
+    return access.createApplicationTables(connection, targetApplication);
   }
 
   public boolean insertNetworkInfo(String targetTable, NetworkInfo info)
