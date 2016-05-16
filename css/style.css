@@ -296,6 +296,16 @@ ul.sub-list >li > a >p:active {
 .error-rate-table{
   margin: 5px;
 }
+.error-rate-table-title{
+    color: #333333;
+    font-size: 18px;
+    font-weight: bold;
+    width: 1274px;
+
+    text-align: center;
+    align:center;
+    margin: 0px;
+}
 tr th{
   font-family: Arial, sans-serif;
   font-weight: bold;

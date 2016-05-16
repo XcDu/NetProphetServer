@@ -17,4 +17,10 @@ public class UrlIndex {
   public void addSubList(String subUrl) {
     subUrlList.add(subUrl);
   }
+
+  @Override
+  public String toString() {
+    return String.format("DOMAIN:%s\n" + "SUB_LIST:%s\n", domain,
+        subUrlList.toString());
+  }
 }

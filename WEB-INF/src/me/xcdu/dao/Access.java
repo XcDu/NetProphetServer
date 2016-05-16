@@ -6,6 +6,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -35,6 +38,10 @@ public class Access {
     PreparedStatement preparedStatement =
         connection.prepareStatement(sqlStatementBuilder
             .getOverviewTopViewedSql(targetApplication, networkType));
+
+    System.out
+        .println("TopViewedSqlStatement:\n" + preparedStatement.toString());
+
     ResultSet rs = preparedStatement.executeQuery();
     try {
       while (rs.next()) {
@@ -53,6 +60,10 @@ public class Access {
     PreparedStatement preparedStatement =
         connection.prepareStatement(sqlStatementBuilder
             .getOverviewTopErrorRateSql(targetTable, networkType));
+
+    System.out
+        .println("TopErrorSqlStatement:\n" + preparedStatement.toString());
+
     ResultSet rs = preparedStatement.executeQuery();
     try {
       while (rs.next()) {
@@ -142,28 +153,43 @@ public class Access {
         sqlStatementBuilder.getUrlIndexSql(targetTable, sortBy));
     System.out.println("Statement:" + statement.toString());
     ResultSet rs = statement.executeQuery();
+    Set<String> urlSet = new HashSet<String>();
+    try {
+      while (rs.next()) {
+        String url = rs.getString("url");
+        if (url.indexOf('?') >= 0) {
+          url = url.substring(0, url.indexOf('?'));
+        }
+        urlSet.add(url);
+      }
+    } catch (Exception e) {
+      // TODO: handle exception
+    }
+    System.out.println(urlSet.toString());
     ArrayList<UrlIndex> urlIndexList = new ArrayList<UrlIndex>();
-    SortedMap<String, Integer> urlIndexMap = new TreeMap<String, Integer>();
+    SortedMap<String, Integer> urlGroupMap = new TreeMap<String, Integer>();
     // Current position of urlIndexList
     Integer curPos = 0;
     try {
-      while (rs.next()) {
-        URL tmpUrl = new URL(rs.getString("url"));
+      Iterator<String> it = urlSet.iterator();
+      while (it.hasNext()) {
+        URL tmpUrl = new URL(it.next());
         String domain = tmpUrl.getHost();
         domain = domain.startsWith("www.") ? domain.substring(4) : domain;
-        if (!urlIndexMap.containsKey(domain)) {
+        if (!urlGroupMap.containsKey(domain)) {
           urlIndexList.add(new UrlIndex());
           urlIndexList.get(curPos).setDomain(domain);
           urlIndexList.get(curPos).addSubList(tmpUrl.toString());
-          urlIndexMap.put(domain, curPos++);
+          urlGroupMap.put(domain, curPos++);
         } else {
-          urlIndexList.get(urlIndexMap.get(domain))
+          urlIndexList.get(urlGroupMap.get(domain))
               .addSubList(tmpUrl.toString());
         }
       }
     } catch (Exception e) {
       logger.error(e.getMessage());
     }
+    // System.out.println(urlIndexList.toString());
     return urlIndexList;
   }
 

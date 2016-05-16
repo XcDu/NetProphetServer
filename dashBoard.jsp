@@ -33,7 +33,7 @@
           <a class="col-md-2 col-md-offset-1 navbar-brand" href="#">NetProphet</a>
            <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
-              <li><a href="#">Help</a></li>
+              <li><a href="applications.jsp">Switch App</a></li>
             </ul>
           </div>
         </div>
@@ -45,7 +45,9 @@
         <div class="col-md-3 col-sm-4 sidebar" id="scrollbar-side">
           <div>
             <h3 class="overview">
-              <a class="selectable" href="#"><p>Overview</p></a><br/>
+              <a class="selectable" href="#">
+                <p>Overview</p>
+              </a><br/>
             </h3>
           </div>
           <hr/>
@@ -61,11 +63,11 @@
                   <!-- <option>dnsDelay DESC</option> -->
                 </select>
               </div>
+            </div>
+              <div class="clearfix"></div>
+              <ul class="nav nav-sidebar"></ul>
+            </div>
           </div>
-            <div class="clearfix"></div>
-            <ul class="nav nav-sidebar"></ul>
-          </div>
-        </div>
         <div class="col-md-9 col-md-offset-3 col-sm-8 col-sm-offset-4 main">
           <div class="row">
             <div class="col-md-12 col-sm-12 card-title">
@@ -81,7 +83,6 @@
           </div>
         </div>
       </div>
-    </div>
     <!-- Bootstrap core JavaScript
     ================================================== -->
 
@@ -94,13 +95,5 @@
     <script src="js/highcharts.js"></script>
     <script src="js/jquery.nicescroll.js" type="text/javascript"></script>
     <script src="js/dashboard.js"></script>
-    <script type="text/javascript">
-      var url = "baidu.com";
-      function getSortByContent() {
-        var sortByContent="url";
-        return sortByContent;
-      }
-      // var X= $.post("ChartServlet",{data:url}, function(data) {drawLineChart(data);});
-    </script>
   </body>
 </html>

@@ -24,6 +24,12 @@ public class UrlIndexServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
+
+  }
+
+  @Override
+  protected void doPost(HttpServletRequest request,
+      HttpServletResponse response) throws ServletException, IOException {
     AccessManager accessManager = new AccessManager();
     try {
       String app = request.getParameter("app");
@@ -42,11 +48,5 @@ public class UrlIndexServlet extends HttpServlet {
       logger.error(e.getMessage());
     }
 
-  }
-
-  @Override
-  protected void doPost(HttpServletRequest request,
-      HttpServletResponse response) throws ServletException, IOException {
-    doGet(request, response);
   }
 }

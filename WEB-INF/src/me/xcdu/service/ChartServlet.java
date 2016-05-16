@@ -1,6 +1,7 @@
 package me.xcdu.service;
 
 import java.io.IOException;
+import java.net.URL;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -19,6 +20,12 @@ public class ChartServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
+
+  }
+
+  @Override
+  protected void doPost(HttpServletRequest request,
+      HttpServletResponse response) throws ServletException, IOException {
     String app = request.getParameter("app");
     System.out.println("application:" + app);
     // TODO(xcdu): to be refined;
@@ -39,12 +46,12 @@ public class ChartServlet extends HttpServlet {
         }
       } else if (type.equalsIgnoreCase("urllist")) {
         try {
-          String targetUrl = request.getParameter("targetUrl");
+          URL targetUrl = new URL(request.getParameter("targetUrl"));
           Gson gson = new Gson();
           // Gson gson =
           // new GsonBuilder().serializeSpecialFloatingPointValues().create();
-          String respJson = gson
-              .toJson(accessManager.getUrlListCharts(targetTable, targetUrl));
+          String respJson = gson.toJson(accessManager
+              .getUrlListCharts(targetTable, targetUrl.toString()));
           response.setContentType("application/json");
           response.setCharacterEncoding("utf-8");
           response.getWriter().write(respJson);
@@ -57,11 +64,5 @@ public class ChartServlet extends HttpServlet {
     } catch (Exception e) {
       e.printStackTrace();
     }
-  }
-
-  @Override
-  protected void doPost(HttpServletRequest request,
-      HttpServletResponse response) throws ServletException, IOException {
-    throw new ServletException("Request Error");
   }
 }

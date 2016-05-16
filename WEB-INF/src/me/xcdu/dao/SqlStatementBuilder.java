@@ -59,9 +59,10 @@ public class SqlStatementBuilder {
     String nTable = targetTable + "_networkinfo";
     String statement = "select * from " + hTable + " inner join " + nTable + ""
         + " on " + hTable + ".reqID=" + nTable + ".reqID" + " and " + hTable
-        + ".nextReqID=0" + " and " + hTable + ".url=\"" + targetUrl + "\" "
-        + networkType.getStatement(targetTable) + " " + " and " + hTable
-        + ".useConnCache=false" + " order by " + hTable + ".startTime asc";
+        + ".nextReqID=0" + " and( " + hTable + ".url=\"" + targetUrl + "\""
+        + " or " + hTable + ".url like \"" + targetUrl + "?%\") "
+        + networkType.getStatement(targetTable) + " " + " order by " + hTable
+        + ".startTime asc";
     return statement;
   }
 
@@ -71,9 +72,9 @@ public class SqlStatementBuilder {
     String nTable = targetTable + "_networkinfo";
     String statement = "select * from " + hTable + " inner join " + nTable + ""
         + " on " + hTable + ".reqID=" + nTable + ".reqID" + " and " + hTable
-        + ".nextReqID<>0" + " and " + hTable + ".url=\"" + targetUrl + "\" "
-        + networkType.getStatement(targetTable) + " " + " and " + hTable
-        + ".useConnCache=false";
+        + ".nextReqID<>0" + " and (" + hTable + ".url=\"" + targetUrl + "\""
+        + " or " + hTable + ".url like \"" + targetUrl + "?%\") "
+        + networkType.getStatement(targetTable) + " ";
     return statement;
   }
 
@@ -82,8 +83,9 @@ public class SqlStatementBuilder {
     String nTable = targetTable + "_networkinfo";
     String statement =
         "select distinct url" + " from " + hTable + " inner join " + nTable + ""
-            + " on " + hTable + ".reqID=" + nTable + ".reqID" + " and " + hTable
-            + ".useConnCache=false" + " order by " + sortBy;
+            + " on " + hTable + ".reqID=" + nTable + ".reqID"
+            // + " and " + hTable + ".useConnCache=false"
+            + " order by " + sortBy;
     return statement;
   }
 

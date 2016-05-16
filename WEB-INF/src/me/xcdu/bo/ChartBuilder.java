@@ -36,16 +36,16 @@ public class ChartBuilder {
   }
   // Delay Stacked Bar Chart
   public class DelayStackedBarChart {
-    public ArrayList<Long> categories;
+    public ArrayList<String> categories;
     public ArrayList<DelayStackedBarChartSeries> series;
 
     public DelayStackedBarChart() {
-      categories = new ArrayList<Long>();
+      categories = new ArrayList<String>();
       series = new ArrayList<DelayStackedBarChartSeries>();
     }
 
-    public void categoriesAddElement(Long reqID) {
-      categories.add(reqID);
+    public void categoriesAddElement(String date) {
+      categories.add(date);
     }
 
     public void seriesAddElementWithName(String name) {

@@ -1,17 +1,31 @@
 /**
  *
  */
+// Nicescroll Init
+$(function() {
+  $("#scrollbar-side").niceScroll({
+    cursorwidth : 10,
+    zindex : 10000
+  });
+});
 
+$(function() {
+  $("html").niceScroll({
+    cursorwidth : 10,
+    zindex : 10000
+  });
+});
+// Nicescroll Init end
 
 // Sidebar init
 function getUrlIndex(sortBy) {
   $("ul.nav.nav-sidebar").empty();
-  $.ajax({url:"UrlIndexServlet", data:{ app: application, sortBy : sortBy },
+  $.ajax({url:"UrlIndexServlet", data:{ app: application, sortBy : sortBy }, type: "POST",
     success: function (urlsIndex){
     for(var i=0;i<urlsIndex.length;++i) {
       var appendString="";
       for(var j=0;j<urlsIndex[i].subUrlList.length;++j){
-        appendString += "<li><a class=\"selectable\" href=\"#\"><p>"+urlsIndex[i].subUrlList[j]+"</p></a></li>\n";
+        appendString += "<li><a class=\"selectable\" href=\"#\"><p data-toggle=\"tooltip\" data-placement=\"right\" title=\""+urlsIndex[i].subUrlList[j]+"\">"+urlsIndex[i].subUrlList[j]+"</p></a></li>\n";
       }
       $("ul.nav.nav-sidebar").append("<li><a data-toggle=\"collapse\" "+
         "href=\"#nav-sublist"+i+"\">"+urlsIndex[i].domain+"</a></li>").append(
@@ -33,7 +47,7 @@ function getUrlIndex(sortBy) {
     //    cnt++;
     // }
   }});
-  // $("#scrollbar-side").getNiceScroll().resize();
+  $("#scrollbar-side").getNiceScroll().resize();
 }
 // Sidebar init end
 
@@ -44,7 +58,7 @@ $(getUrlIndex($(".sortby-selector select option:selected").text()));
 
 // Charts init
 $.ajax({url:"ChartServlet", data:{app: application, type:"overview"},
- success: drawOverviewHighCharts, dataType: 'json',type: "GET"});
+ success: drawOverviewHighCharts, dataType: 'json',type: "POST"});
 // Charts init end
 
 // Charts to show
@@ -73,6 +87,7 @@ function drawOverviewHighCharts(result) {
   drawOverviewTopViewed(result.mobile.topViewed,"#mobile-top-delay");
   drawOverviewTopErrorRate(result.wifi.topErrorRate,"#wifi-top-error-rate");
   drawOverviewTopErrorRate(result.mobile.topErrorRate,"#mobile-top-error-rate");
+  $("html").getNiceScroll().resize();
 }
 
 function drawOverviewTopViewed(chart,location){
@@ -121,7 +136,8 @@ function drawOverviewTopViewed(chart,location){
               dataLabels: {
                   enabled: true
               },
-              color: '#52D3AA'
+              color: '#52D3AA',
+              maxPointWidth: 50
           }
       },
       series: [{
@@ -133,9 +149,13 @@ function drawOverviewTopViewed(chart,location){
 function drawOverviewTopErrorRate(chart,location){
   var url = chart.url;
   var errorRate = chart.errorRate;
-  $(location).append('<table class="table table-hover error-rate-table"> <thead> <tr> <th>URL</th> <th>Error Rate</th> </tr> </thead>\n<tbody> </tbody> </table>');
-  for(var i=0;i<url.length;++i) {
-     $(location+" tbody").append('<tr> <td> '+url[i]+'</td> <td>'+errorRate[i]+'</td> </tr>');
+  $(location).append('<div class="error-rate-table-title">Top 10 Error Rate</div><table class="table table-hover error-rate-table"> <thead> <tr> <th>URL</th> <th>Error Rate</th> </tr> </thead>\n<tbody> </tbody> </table>');
+  if(url.length==0){
+     $(location+" tbody").append('<tr> <td>None</td> <td> </td> </tr>');
+  }else{
+    for(var i=0;i<url.length;++i) {
+       $(location+" tbody").append('<tr> <td> '+url[i]+'</td> <td>'+errorRate[i]+'</td> </tr>');
+    }
   }
 }
 // Charts to show: Overview charts end
@@ -166,6 +186,7 @@ function drawUrlHighCharts(result) {
   drawErrorRateChart(result.mobile.errorRateChart, "#mobile-error-rate");
   drawRedirectionChart(result.wifi.redirectionChart, "#wifi-redirection-list");
   drawRedirectionChart(result.mobile.redirectionChart, "#mobile-redirection-list");
+  $("html").getNiceScroll().resize();
 }
 
 function drawDelayLineChart(chart,location) {
@@ -186,7 +207,14 @@ function drawDelayLineChart(chart,location) {
           enabled: false
         },
         title: {
-            text: 'Recent Request Delays'
+            text: 'Delay Overview'
+        },
+        plotOptions: {
+          line: {
+            marker: {
+              enabled : true
+            }
+          }
         },
         xAxis: {
             type: 'datetime'
@@ -214,6 +242,35 @@ function drawDelayLineChart(chart,location) {
 function drawDelayStackedBarChart(chart,location) {
   var categories = chart.categories;
   var data = chart.series;
+  if(typeof data != "undefined" && typeof data[0] != "undefined" && typeof data[1] != "undefined" && typeof data[2] != "undefined") {
+
+      var dnsDelayData = data[0].data;
+      for(var i=0;i<dnsDelayData.length;++i){
+        if(dnsDelayData[i]<0){
+          // do something here
+          dnsDelayData[i]=0;
+        }
+      }
+
+
+      var handshakeDelayData = data[1].data;
+      for(var i=0;i<handshakeDelayData.length;++i) {
+        if(handshakeDelayData[i]<0) {
+          // do something here
+          handshakeDelayData[i]=0;
+        }
+      }
+
+
+      var tlsDelayData = data[2].data;
+      for(var i=0;i<tlsDelayData.length;++i){
+        if(tlsDelayData[i]<0){
+          // do something here
+          tlsDelayData[i]=0;
+        }
+      }
+  }
+
   $(location).highcharts({
       chart: {
           type: 'bar'
@@ -222,7 +279,7 @@ function drawDelayStackedBarChart(chart,location) {
         enabled: false
       },
       title: {
-          text: 'Diagram of Delays\' Distribution'
+          text: 'Delay Distribution'
       },
       xAxis: {
           title: {
@@ -235,13 +292,18 @@ function drawDelayStackedBarChart(chart,location) {
           title: {
               text: 'Delay Type'
           },
-      },
-      legend: {
-          title: {
-            text : 'Number of HTTP requests:'
+          dateTimeLabelFormats: {
+            millisecond: '%H:%M:%S.%L'
           }
       },
+      tooltip: {
+        valueSuffix: 'ms'
+      },
       plotOptions: {
+          bar:{
+            maxPointWidth: 50,
+            minPointLength: 5
+          },
           series: {
               stacking: 'normal'
           }
@@ -264,10 +326,10 @@ function drawDelayPieChart(chart,location) {
           enabled: false
         },
         title: {
-            text: 'Average Percentage of Delays'
+            text: 'Average Delay Percentage'
         },
         tooltip: {
-            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            pointFormat: 'Delay: <b>{point.y}ms</b><br />Percentage: <b>{point.percentage:.1f}%</b>'
         },
         plotOptions: {
             pie: {
@@ -289,7 +351,7 @@ function drawDelayPieChart(chart,location) {
 function drawErrorRateChart(chart,location){
   var errorRate=chart.errorRate;
   var data = [];
-  var text = 'Error Rate:<br/>'+errorRate;
+  var text = 'Error Rate: <b>'+errorRate+'%</b>';
   data.push(['Respose with Error', errorRate]);
   data.push(['Respose without Error', 1-errorRate]);
   $(location).highcharts({
@@ -303,10 +365,13 @@ function drawErrorRateChart(chart,location){
           enabled: false
       },
       title: {
+        text: 'Error Rate'
+      },
+      subtitle: {
           text: text,
           align: 'center',
           verticalAlign: 'middle',
-          y: 50
+          y: 80
       },
       colors:[
         '#FF0000', '#A9FF96'
@@ -360,7 +425,7 @@ $(function(){
 $(function(){
   $('body').on('click',".overview a.selectable" , function() {
     $.ajax({url:"ChartServlet", data:{app: application, type:"overview"},
-success: drawOverviewHighCharts, dataType: 'json',type: "GET"});
+success: drawOverviewHighCharts, dataType: 'json',type: "POST"});
   });
 });
 $(function(){
@@ -369,25 +434,19 @@ $(function(){
     getUrlIndex($(".sortby-selector select option:selected").text());
   });
 });
-$(document).ready(function(){
+$(function(){
   $('body').on('click', '.sub-list li a p', function() {
-    var targetUrl=this.innerHTML;
-    $.ajax({url:"ChartServlet", data:{app:application, type:"urllist", targetUrl:targetUrl}, success: drawUrlHighCharts, dataType: 'json',type: "GET"});
+    var targetUrl=$(this).text();
+    $.ajax({url:"ChartServlet", data:{app:application, type:"urllist", targetUrl:targetUrl}, success: drawUrlHighCharts, dataType: 'json',type: "POST"});
   });
 });
+$(function(){
+
+$(document).on('mouseover','#scrollbar-side', function () {
+    $(this).getNiceScroll().resize();
+  });
+})
 
 // Click listener end
 
-// Scrollbar init
-$(function() {
-  $("html").niceScroll({
-    cursorwidth : 10,
-    zindex : 10000
-  });
-});
-$(function() {
-  $("#scrollbar-side").niceScroll({
-    cursorwidth : 10
-  });
-});
-// Scrollbar init end
+
