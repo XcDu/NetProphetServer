@@ -174,16 +174,14 @@ public class Access {
       Iterator<String> it = urlSet.iterator();
       while (it.hasNext()) {
         URL tmpUrl = new URL(it.next());
-        String domain = tmpUrl.getHost();
-        domain = domain.startsWith("www.") ? domain.substring(4) : domain;
-        if (!urlGroupMap.containsKey(domain)) {
+        String host = tmpUrl.getHost();
+        if (!urlGroupMap.containsKey(host)) {
           urlIndexList.add(new UrlIndex());
-          urlIndexList.get(curPos).setDomain(domain);
-          urlIndexList.get(curPos).addSubList(tmpUrl.toString());
-          urlGroupMap.put(domain, curPos++);
+          urlIndexList.get(curPos).setDomain(host);
+          urlIndexList.get(curPos).addSubList(tmpUrl.getPath());
+          urlGroupMap.put(host, curPos++);
         } else {
-          urlIndexList.get(urlGroupMap.get(domain))
-              .addSubList(tmpUrl.toString());
+          urlIndexList.get(urlGroupMap.get(host)).addSubList(tmpUrl.getPath());
         }
       }
     } catch (Exception e) {

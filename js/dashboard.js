@@ -436,7 +436,8 @@ $(function(){
 });
 $(function(){
   $('body').on('click', '.sub-list li a p', function() {
-    var targetUrl=$(this).text();
+    var pathid = $(this).parents('ul').attr('id');
+    var targetUrl = $("a[href='#"+pathid+"']").text()+$(this).text();
     $.ajax({url:"ChartServlet", data:{app:application, type:"urllist", targetUrl:targetUrl}, success: drawUrlHighCharts, dataType: 'json',type: "POST"});
   });
 });

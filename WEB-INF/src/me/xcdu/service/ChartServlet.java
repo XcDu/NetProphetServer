@@ -1,7 +1,6 @@
 package me.xcdu.service;
 
 import java.io.IOException;
-import java.net.URL;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -46,12 +45,12 @@ public class ChartServlet extends HttpServlet {
         }
       } else if (type.equalsIgnoreCase("urllist")) {
         try {
-          URL targetUrl = new URL(request.getParameter("targetUrl"));
+          String targetUrl = request.getParameter("targetUrl");
           Gson gson = new Gson();
           // Gson gson =
           // new GsonBuilder().serializeSpecialFloatingPointValues().create();
-          String respJson = gson.toJson(accessManager
-              .getUrlListCharts(targetTable, targetUrl.toString()));
+          String respJson = gson
+              .toJson(accessManager.getUrlListCharts(targetTable, targetUrl));
           response.setContentType("application/json");
           response.setCharacterEncoding("utf-8");
           response.getWriter().write(respJson);
